@@ -1,0 +1,10 @@
+package Picom::VR::UI;
+use Moose;
+use namespace::autoclean;
+
+
+
+
+__PACKAGE__->meta->make_immutable;
+
+__END__
