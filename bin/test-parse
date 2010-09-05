@@ -1,0 +1,141 @@
+#!/usr/bin/env perl
+use warnings;
+use strict;
+
+# use Moose;
+use Carp;
+use YAML;
+#use IO::File;
+
+my $dicom_file = shift || die "give a DICOM file...\n";
+open my $fh, "<", $dicom_file or die $!;
+seek($fh, 128, 0) or die "Couldn't seek to end of header";
+
+read($fh, my $buff, 4) == 4 or die;
+
+$buff eq "DICM" or die "Not a recognizable DICOM file...";
+my ( $group, $element );
+
+read($fh,$group,2) == 2 or die;
+read($fh,$element,2) == 2 or die;
+
+my %packlist = (
+               UL => { bytes => 4,
+                       template => "V",
+                   },
+               US => { bytes => 4,
+                       template => "v",
+                   },
+               LO => { bytes => 4,
+                       template => "A*",
+                   },
+               PN => { bytes => 4,
+                       template => "A*",
+                   },
+               UI => { bytes => "x", #64
+                       template => "A*",
+                   },
+               SH => { bytes => "x", #64
+                       template => "A*",
+                   },
+               AE => { bytes => "x", #64
+                       template => "A*",
+                   },
+                CS => { bytes => "x", #64
+                        template => "A*",
+                   },
+                DA => { bytes => "x", #64
+                        template => "A*",
+                   },
+                DS => { bytes => "x", #64
+                        template => "A*",
+                   },
+                IS => { bytes => "x", #64
+                        template => "A*",
+                   },
+                TM => { bytes => "x", #64
+                        template => "A*",
+                   },
+               );
+
+if ( unpack("v",$group) == 2 )
+{
+   print "Little endian...\n";
+}
+elsif ( unpack("n",$group) == 2 )
+{
+   print "Big endian...\n";
+}
+else
+{
+   die "Bad header...";
+}
+
+
+   read($fh, $buff, 2);
+   my $vr = unpack("A2",$buff);
+   read($fh, $buff, 2);
+   my $bytes = unpack("v",$buff);
+   read($fh, $buff, $bytes);
+   my $header_length = unpack($packlist{$vr}{template},$buff);
+
+
+my $total = 0;
+while ( $header_length > $total )
+{
+   my ( $vr, $bytes, $value );
+   read($fh,$group,2) == 2 or die;
+   read($fh,$element,2) == 2 or die;
+   read($fh,$vr,2) == 2 or die;
+   if ( unpack("A2",$vr) eq "OB" )
+   {
+       $bytes = 8;
+       read($fh,$buff,$bytes);
+       $value = unpack("N*", $buff);
+       $total += 2 + 2 + 2 + $bytes;
+   }
+   else
+   {
+       read($fh,$buff,2);
+       $bytes = unpack("v",$buff);
+       read($fh, $buff, $bytes);
+       $value = unpack($packlist{$vr}{template},$buff);
+       $value = $buff;
+       $total += 2 + 2 + 2 + 2 + $bytes;
+   }
+   printf("%.4x,%.4x - %s(%d): %s\n",
+          unpack("v",$group),
+          unpack("v",$element),
+          unpack("A2",$vr),
+          $bytes,
+          $value,
+          );
+}
+
+
+for ( 1 .. 70 )
+{
+   read($fh,$group,2) == 2 or die;
+   read($fh,$element,2) == 2 or die;
+
+   last if unpack("v",$group) == 0x7fe0 and unpack("v",$element) == 0x0010;
+
+   read($fh,my $vr,2) == 2 or die;
+   read($fh,my $length,2) == 2 or die;
+
+   read($fh,$buff,unpack("v",$length));
+
+   my $value = unpack($packlist{$vr}{template},$buff);
+#   my $value = unpack("A*",$buff);
+
+   printf("%.4x,%.4x : %s : %d : %s\n",
+          unpack("v",$group),
+          unpack("v",$element),
+          $vr,
+          unpack("v",$length),
+          $value,
+          );
+}
+
+
+exit 0;
