@@ -7,11 +7,11 @@ use Test::Exception;
 BEGIN {
     package XYZ;
     use Moose;
-    use PICOM::VRtype;
+    use Picom::DICOM::VRtype;
 
     has uid =>
         is => "rw",
-        isa  => "PICOM::VRtype::UI",
+        isa  => "Picom::DICOM::VRtype::UI",
         ;
 }
 

@@ -4,7 +4,6 @@ use strict;
 use Test::More;
 # use Test::Exception;
 
-
 BEGIN {
     use_ok("Picom::DICOM::VR");
 }
@@ -17,6 +16,7 @@ is( $ui, "1.3.6.1.4.1.36460.123456789",
 
 is( length($ui), 27,
     "Stringified length doesn't include DICOM padding" );
+
 is( length($ui->raw), 28,
     "Raw length does include DICOM padding" );
 
