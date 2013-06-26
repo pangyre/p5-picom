@@ -1,5 +1,6 @@
+use 5.014;
 package Picom;
-$VERSION = "0.01";
+our $VERSION = "0.01";
 
 1;
 

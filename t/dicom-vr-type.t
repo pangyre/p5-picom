@@ -1,8 +1,7 @@
 #!/usr/bin/env perl
-use warnings;
-use strict;
+use strictures;
 use Test::More;
-use Test::Exception;
+use Test::Fatal;
 
 BEGIN {
     package XYZ;
@@ -15,18 +14,19 @@ BEGIN {
         ;
 }
 
+ok my $xyz = XYZ->new, "XYZ->new";
 
-ok( my $xyz = XYZ->new, "XYZ->new" );
+isnt exception { $xyz->uid(0) },
+    undef,
+    '$xyz->uid(0) throws exception';
 
-dies_ok( sub { $xyz->uid(0) } );
+ok $xyz->uid("1.2.3"), '$xyz->uid("1.2.3")';
 
-ok( $xyz->uid("1.2.3") );
+isnt exception { $xyz->uid("1.02.3") },
+    undef,
+    '$xyz->uid("1.02.3") throws exception';
 
-dies_ok( sub { $xyz->uid("1.02.3") } );
-
-
-
-done_testing();
+done_testing(4);
 
 __DATA__
 

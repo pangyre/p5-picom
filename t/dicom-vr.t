@@ -1,26 +1,23 @@
 #!/usr/bin/env perl
-use warnings;
-use strict;
+use strictures;
 use Test::More;
-# use Test::Exception;
 
 BEGIN {
     use_ok("Picom::DICOM::VR");
 }
 
-ok( my $ui = Picom::DICOM::VR::UI->new("1.3.6.1.4.1.36460.123456789\0"),
-    "1.3.6.1.4.1.36460.123456789" );
+ok my $ui = Picom::DICOM::VR::UI->new("1.3.6.1.4.1.36460.123456789\0"),
+    "new from 1.3.6.1.4.1.36460.123456789";
 
-is( $ui, "1.3.6.1.4.1.36460.123456789",
-    "Stringifies correctly" );
+is $ui, "1.3.6.1.4.1.36460.123456789", "Stringifies correctly";
 
-is( length($ui), 27,
-    "Stringified length doesn't include DICOM padding" );
+is length($ui), 27,
+    "Stringified length doesn't include DICOM padding";
 
-is( length($ui->raw), 28,
-    "Raw length does include DICOM padding" );
+is length($ui->raw), 28,
+    "Raw length does include DICOM padding";
 
-done_testing();
+done_testing(5);
 
 __DATA__
 
