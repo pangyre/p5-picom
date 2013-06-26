@@ -22,9 +22,6 @@ while ( my ( $in, $out ) = each %trim )
     is $abc, "abc", "In place trim works";
 }
 
-
-
-
-done_testing();
+done_testing(6);
 
 __DATA__
