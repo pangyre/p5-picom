@@ -9,12 +9,12 @@ sub import {
 }
 
 sub trim {
-    local $_ = shift;
+    local $_ = $_[0];
     s/\A\s+//;
     s/\s+\z//;
     y/\0//d;
     $_[0] = $_ unless defined wantarray;
-    $_
+    $_;
 }
 
 1;
